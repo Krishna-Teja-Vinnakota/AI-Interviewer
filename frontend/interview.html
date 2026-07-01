@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Interview - In Progress</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/interview.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap">
+    <!-- MediaPipe Face Detection -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_detection"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils"></script>
+    <!-- @vladmandic/face-api for Face Verification (matches model CDN path) -->
+    <script defer src="https://cdn.jsdelivr.net/npm/@vladmandic/face-api/dist/face-api.js"></script>
+</head>
+<body>
+    <div class="interview-page">
+        <div class="container-fluid">
+            <!-- Header -->
+            <div class="interview-header">
+                <button class="btn-ghost" onclick="exitInterview()">
+                    ← Exit Interview
+                </button>
+                <div class="question-counter">
+                    Question <span id="current-question-num">1</span> of <span id="total-questions">10</span>
+                </div>
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="progress-section">
+                <div class="progress">
+                    <div class="progress-bar" id="progress-bar" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <!-- New Layout: Left Column (Video+Timer) | Right Column (Question+Answer) -->
+            <div class="interview-layout">
+                <!-- Left Column: Video & Timer (25% width) -->
+                <div class="left-column">
+                    <!-- Timer -->
+                    <div class="card timer-card">
+                        <div class="timer-label">Total Time Remaining</div>
+                        <div class="timer-value" id="timer-value">25:00</div>
+                    </div>
+
+                    <!-- Video -->
+                    <div class="card video-card">
+                        <div class="video-container-compact">
+                            <video id="interview-video" autoplay muted></video>
+                            <div class="video-overlay" id="video-overlay">
+                                <div class="recording-indicator" id="recording-indicator" style="display: none;">
+                                    <span class="recording-dot"></span>
+                                    <span>Recording</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Video Controls -->
+                        <div class="video-controls-compact">
+                            <button class="control-btn" id="mic-btn" onclick="toggleMic()" title="Microphone">
+                                <span id="mic-icon">🎤</span>
+                            </button>
+                            
+                            <button class="control-btn" id="video-btn" onclick="toggleVideo()" title="Camera">
+                                <span id="video-icon">📷</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Tips -->
+                    <div class="card tips-card-compact">
+                        <h4>💡 Tips</h4>
+                        <ul>
+                            <li>Speak clearly</li>
+                            <li>Look at camera</li>
+                            <li>Take your time</li>
+                            <li>Be authentic</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Right Column: Question & Answer (75% width) -->
+                <div class="right-column">
+                    <!-- Current Question -->
+                    <div class="card question-card-large">
+                        <div class="question-label">Question <span id="question-number">1</span></div>
+                        <p class="question-text" id="question-text">Loading question...</p>
+                    </div>
+
+                    <!-- Recording Button -->
+                    <div class="record-section">
+                        <button class="btn-primary btn-lg btn-record" id="record-btn" onclick="toggleRecording()">
+                            <span id="record-icon">▶️</span>
+                            <span id="record-text">Start Speaking</span>
+                        </button>
+                    </div>
+
+                    <!-- Answer Textarea -->
+                    <div class="answer-section-large">
+                        <label for="answer-textarea" class="answer-label">Your Answer (Edit if needed):</label>
+                        <textarea 
+                            id="answer-textarea" 
+                            class="answer-textarea-large" 
+                            placeholder="Your transcribed answer will appear here. You can edit it before submitting."
+                            rows="8"
+                        ></textarea>
+                        
+                        <div class="answer-actions">
+                            <button class="btn-primary btn-lg" onclick="submitAnswer()">
+                                <span>✓</span> Submit Answer
+                            </button>
+                            
+                            <button class="btn-ghost" id="skip-btn" onclick="skipQuestion()" title="Skip this question">
+                                ⏭️ Skip
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toast-container"></div>
+
+    <!-- Proctoring Rules Modal -->
+    <div class="modal" id="proctoring-rules-modal">
+        <div class="modal-content">
+            <div class="modal-icon">📋</div>
+            <div class="modal-title">Interview Guidelines</div>
+            <div class="modal-message">
+                <p style="margin-bottom: 15px;">To ensure a fair interview process, please follow these rules:</p>
+                <ul style="text-align: left; display: inline-block; margin: 0 auto;">
+                    <li>✓ Keep your face visible at all times</li>
+                    <li>✓ Only you should be in the camera frame</li>
+                    <li>✓ Stay on this tab throughout the interview</li>
+                    <li>✓ You have 5 warnings for tab switching</li>
+                    <li>✓ Copy-paste is disabled in answer box</li>
+                    <li>✓ Timer continues during violations</li>
+                </ul>
+            </div>
+            <div class="timer-notice">
+                After 5 tab switches, your interview will auto-submit
+            </div>
+            <button class="modal-btn" id="agree-rules-btn">I Agree and Understand</button>
+        </div>
+    </div>
+
+    <!-- No Face Modal -->
+    <div class="modal" id="no-face-modal">
+        <div class="modal-content">
+            <div class="modal-icon">⚠️</div>
+            <div class="modal-title">Your Face is Not Visible</div>
+            <div class="modal-message">
+                Please adjust your camera position so your face is clearly visible.
+            </div>
+            <video id="modal-video-no-face" class="modal-video-preview" autoplay muted></video>
+            <div class="timer-notice">⏱️ Timer is still running</div>
+            <div class="auto-close-notice">
+                ✅ This warning will close automatically once your face is visible
+            </div>
+        </div>
+    </div>
+
+    <!-- Multiple Faces Modal -->
+    <div class="modal" id="multi-face-modal">
+        <div class="modal-content">
+            <div class="modal-icon">⚠️</div>
+            <div class="modal-title">Multiple People Detected</div>
+            <div class="modal-message">
+                Only you should be visible during the interview.<br>
+                Please ensure no one else is in the camera frame.
+            </div>
+            <video id="modal-video-multi-face" class="modal-video-preview" autoplay muted></video>
+            <div class="modal-message" style="margin-top: 15px;">
+                <strong>Detected faces: <span id="detected-face-count">0</span></strong>
+            </div>
+            <div class="timer-notice">⏱️ Timer is still running</div>
+            <div class="auto-close-notice">
+                ✅ This warning will close automatically once only you are visible
+            </div>
+        </div>
+    </div>
+
+    <!-- Tab Switch Modal -->
+    <div class="modal" id="tab-switch-modal">
+        <div class="modal-content">
+            <div class="modal-icon">⚠️</div>
+            <div class="modal-title">Tab Switch Detected!</div>
+            <div class="warning-count" id="tab-warning-count">Warning 1/5</div>
+            <div class="modal-message">
+                Please stay on this tab throughout the interview.<br>
+                <strong>Remaining warnings: <span id="tab-remaining-warnings">4</span></strong>
+            </div>
+            <div class="timer-notice">⏱️ Timer is still running</div>
+            <button class="modal-btn" id="tab-understand-btn">I Understand</button>
+        </div>
+    </div>
+
+    <!-- Face Substitution Warning Modal -->
+    <div class="modal" id="face-substitution-modal">
+        <div class="modal-content" style="max-width: 420px; padding: 1.5rem;">
+            <div class="modal-icon" style="font-size: 2rem; margin-bottom: 0.5rem;">🚨</div>
+            <div class="modal-title" style="font-size: 1.1rem; margin-bottom: 0.5rem;">Identity Verification Failed</div>
+            <div class="modal-message" style="font-size: 0.9rem; margin-bottom: 0.75rem;">
+                Person on camera does not match the registered candidate.<br>
+                <strong>Please ensure you are the registered candidate.</strong>
+            </div>
+            <video id="modal-video-substitution" class="modal-video-preview" autoplay muted style="max-height: 140px; margin-bottom: 0.5rem;"></video>
+            <div class="timer-notice" style="font-size: 0.8rem; padding: 0.4rem 0.75rem; margin-bottom: 0.4rem;">⏱️ Timer is still running</div>
+            <div class="auto-close-notice" style="font-size: 0.8rem;">
+                ✅ Closes automatically when registered candidate is detected
+            </div>
+        </div>
+    </div>
+
+    <!-- Auto-Submit Modal -->
+    <div class="modal" id="auto-submit-modal">
+        <div class="modal-content">
+            <div class="modal-icon" id="auto-submit-icon">❌</div>
+            <div class="modal-title" id="auto-submit-title">Interview Auto-Submitted</div>
+            <div class="modal-message" id="auto-submit-message">
+                You exceeded the maximum number of tab switch warnings.<br><br>
+                <strong>Reason:</strong> Multiple Tab Switches<br><br>
+                Your responses have been submitted automatically.
+            </div>
+            <!-- Upload Status (hidden initially) -->
+            <div class="upload-status" id="upload-status" style="display: none;">
+                <div class="spinner"></div>
+                <p><strong>Please wait - Video is uploading...</strong></p>
+                <p style="color: #dc3545; font-weight: bold;">⚠️ Do not close or refresh this window</p>
+            </div>
+            <!-- Completion Status (hidden initially) -->
+            <div class="completion-status" id="completion-status" style="display: none;">
+                <div style="font-size: 64px; color: #28a745;">✓</div>
+                <p style="font-size: 18px; font-weight: bold; color: #28a745;">Interview Completed Successfully</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/utils.js"></script>
+    <script src="js/deepgram-stt.js"></script>
+    <script src="js/proctoring.js"></script>
+    <script src="js/face-verification.js"></script>
+    <script src="js/interview.js"></script>
+</body>
+</html>

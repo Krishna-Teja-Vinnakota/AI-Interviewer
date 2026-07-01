@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recruiter Dashboard - AI Interview System</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/recruiter.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap">
+</head>
+<body>
+    <!-- Header -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-content">
+                <div class="logo">
+                    <div class="logo-icon">AI</div>
+                    <span class="logo-text">InterviewAI</span>
+                </div>
+                <button class="btn-ghost" onclick="window.location.href='/'">
+                    ← Back to Home
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="recruiter-page">
+        <div class="container">
+            <div class="page-header">
+                <h1>Recruiter <span class="text-gradient">Dashboard</span></h1>
+                <p>Manage your hiring process, upload resumes, and track candidate progress</p>
+            </div>
+
+            <!-- Tabs -->
+            <div class="tabs-container">
+                <div class="tabs-header">
+                    <button class="tab-btn active" onclick="switchTab('screening')">New Screening</button>
+                    <button class="tab-btn" onclick="switchTab('jd-management')">Manage JDs</button>
+                    <button class="tab-btn" onclick="switchTab('history')">Interview History</button>
+                </div>
+
+                <!-- New Screening Tab -->
+                <div id="tab-screening" class="tab-content active">
+                    <!-- Quick Stats -->
+                    <div class="stats-grid" id="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon blue">👥</div>
+                            <div class="stat-info">
+                                <p class="stat-value" id="total-candidates">0</p>
+                                <p class="stat-label">Total Candidates</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon green">✓</div>
+                            <div class="stat-info">
+                                <p class="stat-value" id="completed-interviews">0</p>
+                                <p class="stat-label">Completed</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon purple">⏰</div>
+                            <div class="stat-info">
+                                <p class="stat-value" id="inprogress-interviews">0</p>
+                                <p class="stat-label">In Progress</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Upload Section -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">Start Candidate Screening</h2>
+                            <p class="card-description">Upload resume, select job description, and let AI handle the rest</p>
+                        </div>
+                        <div class="card-content">
+                            <!-- Resume Upload -->
+                            <div class="upload-section">
+                                <label>Upload Candidate Resumes (Multiple)</label>
+                                <div class="upload-area" id="upload-area">
+                                    <input type="file" id="resume-upload" accept=".pdf,.doc,.docx" onchange="handleFileSelect(event)" multiple style="display: none;">
+                                    <label for="resume-upload" class="upload-label">
+                                        <span class="upload-icon">📤</span>
+                                        <span class="upload-text">Click to upload multiple resumes</span>
+                                        <span class="upload-hint">PDF, DOC, DOCX (Max 10MB per file)</span>
+                                    </label>
+                                </div>
+                                <div id="files-preview" class="files-preview" style="display: none;">
+                                    <div class="files-header">
+                                        <h4><span id="files-count">0</span> Resume(s) Selected</h4>
+                                        <button class="btn-ghost btn-sm" onclick="removeAllFiles()">Clear All</button>
+                                    </div>
+                                    <div id="files-list" class="files-list"></div>
+                                </div>
+                            </div>
+
+                            <!-- Job Description Selection -->
+                            <div class="select-section">
+                                <label>Select Job Description</label>
+                                <select id="jd-select" class="select-input">
+                                    <option value="">Choose a job description...</option>
+                                </select>
+                                <p class="select-hint">
+                                    <span>📄</span>
+                                    The AI will match the resume against this job description
+                                </p>
+                            </div>
+
+                            <!-- Action Button -->
+                            <div class="action-section">
+                                <button class="btn-primary btn-lg" id="start-screening-btn" onclick="startScreening()" disabled>
+                                    <span id="btn-text">▶️ Start AI Screening</span>
+                                </button>
+                            </div>
+
+                            <!-- Batch Analysis Results -->
+                            <div id="batch-results" class="batch-results" style="display: none;">
+                                <div class="results-header">
+                                    <h3>Screening Results</h3>
+                                    <button class="btn-ghost" id="toggle-results-btn" onclick="toggleBatchResults()" aria-expanded="true">
+                                        <span id="toggle-icon">▼</span>
+                                    </button>
+                                </div>
+                                <div class="results-summary" id="results-summary"></div>
+                                <div class="results-table-container">
+                                    <table class="results-table" id="results-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Resume</th>
+                                                <th>Match Score</th>
+                                                <th>Status</th>
+                                                <th>Recommendation</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="results-tbody"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- JD Management Tab -->
+                <div id="tab-jd-management" class="tab-content">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">📄 Job Descriptions</h2>
+                            <p class="card-description">Create and manage job descriptions</p>
+                        </div>
+                        <div class="card-content">
+                            <!-- Create JD Form -->
+                            <div class="jd-form" id="jd-form" style="display: none;">
+                                <h3>Create New Job Description</h3>
+                                <div class="form-grid">
+                                    <div class="form-group">
+                                        <label>Job Title *</label>
+                                        <input type="text" id="jd-title" placeholder="e.g., Senior Frontend Developer" class="form-input">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Location</label>
+                                        <input type="text" id="jd-location" placeholder="e.g., Bangalore, India" class="form-input">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Experience Required</label>
+                                        <input type="text" id="jd-experience" placeholder="e.g., 5-8 years" class="form-input">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Salary Range</label>
+                                        <input type="text" id="jd-salary" placeholder="e.g., 20-30 LPA" class="form-input">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Notice Period Acceptable</label>
+                                        <input type="text" id="jd-notice" placeholder="e.g., 30-60 days" class="form-input">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Skills (comma-separated)</label>
+                                        <input type="text" id="jd-skills" placeholder="e.g., React, Node.js, MongoDB" class="form-input">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label>Job Description *</label>
+                                    <textarea id="jd-description" placeholder="Enter detailed job description..." rows="5" class="form-input"></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label>Requirements *</label>
+                                    <textarea id="jd-requirements" placeholder="Enter job requirements..." rows="5" class="form-input"></textarea>
+                                </div>
+                                <div class="form-actions">
+                                    <button class="btn-ghost" onclick="toggleJDForm()">Cancel</button>
+                                    <button class="btn-primary" onclick="saveJD()">Save JD</button>
+                                </div>
+                            </div>
+
+                            <!-- JD List -->
+                            <div id="jd-list-container">
+                                <div class="action-section" style="margin-bottom: 1.5rem;">
+                                    <button class="btn-primary" onclick="toggleJDForm()">
+                                        <span>+</span> Create New JD
+                                    </button>
+                                </div>
+                                <div id="jd-list" class="jd-list">
+                                    <!-- JD items will be loaded here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Interview History Tab -->
+                <div id="tab-history" class="tab-content">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">📊 Interview History</h2>
+                            <p class="card-description">View all completed and in-progress interviews</p>
+                        </div>
+                        <div class="card-content">
+                            <div id="history-list" class="history-list">
+                                <!-- History items will be loaded here -->
+                                <div class="history-item">
+                                    <div class="history-info">
+                                        <h4>John Doe</h4>
+                                        <p>Senior Frontend Developer</p>
+                                    </div>
+                                    <div class="history-meta">
+                                        <div class="meta-item">
+                                            <p class="meta-label">Date</p>
+                                            <p class="meta-value">2024-01-20</p>
+                                        </div>
+                                        <div class="meta-item">
+                                            <p class="meta-label">Score</p>
+                                            <p class="meta-value score">85%</p>
+                                        </div>
+                                        <button class="btn-outline btn-sm">View Details</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toast-container"></div>
+
+    <script src="js/utils.js?v=2"></script>
+    <script src="js/recruiter.js?v=2"></script>
+</body>
+</html>

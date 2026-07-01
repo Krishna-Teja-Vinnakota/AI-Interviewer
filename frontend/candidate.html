@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Candidate Portal - AI Interview System</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/candidate.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap">
+</head>
+<body>
+    <!-- Header -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-content">
+                <div class="logo">
+                    <div class="logo-icon">AI</div>
+                    <span class="logo-text">InterviewAI</span>
+                </div>
+                <button class="btn-ghost" onclick="window.location.href='/'">
+                    ← Back to Home
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="candidate-page">
+        <div class="container">
+            <div class="page-header">
+                <h1>Candidate <span class="text-gradient">Portal</span></h1>
+                <p>Welcome! Enter your invitation code to begin your AI-powered interview</p>
+            </div>
+
+            <!-- Code Entry Section (Initial Screen) -->
+            <div id="code-entry-section" class="card" style="max-width: 600px; margin: 2rem auto;">
+                <div class="card-header" style="text-align: center;">
+                    <h2 class="card-title">🔑 Enter Your Invitation Code</h2>
+                    <p class="card-description">You received this code via email</p>
+                </div>
+                <div class="card-content">
+                    <div class="form-group">
+                        <label for="invitation-code-input" style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Invitation Code</label>
+                        <input 
+                            type="text" 
+                            id="invitation-code-input" 
+                            placeholder="Enter 8-character code" 
+                            maxlength="8"
+                            style="width: 100%; padding: 1rem; font-size: 1.5rem; letter-spacing: 0.3rem; text-align: center; text-transform: uppercase; border: 2px solid #e5e7eb; border-radius: 8px; font-family: 'Space Grotesk', monospace;"
+                            oninput="this.value = this.value.toUpperCase()"
+                        >
+                        <p style="margin-top: 0.5rem; color: #6b7280; font-size: 0.875rem;">The invitation code is case-insensitive</p>
+                    </div>
+                    
+                    <div class="form-actions" style="margin-top: 2rem;">
+                        <button class="btn-primary btn-lg" onclick="verifyInvitationCode()" style="width: 100%;">
+                            Verify & Continue →
+                        </button>
+                    </div>
+                    
+                    <div style="margin-top: 2rem; padding: 1rem; background: #eff6ff; border-radius: 8px; text-align: center;">
+                        <p style="margin: 0; color: #1e40af; font-size: 0.875rem;">
+                            <strong>Don't have a code?</strong><br>
+                            Check your email inbox or contact the hiring team
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Completion Message (Hidden initially, shown via URL param) -->
+            <div id="completion-message" class="card" style="max-width: 700px; margin: 2rem auto; display: none;">
+                <div class="card-header" style="text-align: center; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 2rem;">
+                    <div style="font-size: 4rem; margin-bottom: 1rem;">✅</div>
+                    <h2 class="card-title" style="color: white; font-size: 2rem; margin-bottom: 0.5rem;">Interview Completed!</h2>
+                    <p class="card-description" style="color: rgba(255,255,255,0.9);">Thank you for your time and effort</p>
+                </div>
+                <div class="card-content" style="padding: 2rem;">
+                    <div style="background: #f0fdf4; border-left: 4px solid #10b981; padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem;">
+                        <h3 style="color: #065f46; margin-bottom: 1rem; font-size: 1.2rem;">✅ Interview Submitted Successfully!</h3>
+                        <p style="color: #166534; margin-bottom: 1rem;">
+                            Your interview has been successfully recorded and submitted. Our AI system is now analyzing your responses in the background.
+                        </p>
+                        <p style="color: #166534; font-weight: 600;">
+                            The recruiter will review your results and get back to you soon.
+                        </p>
+                    </div>
+                    
+                    <div style="background: #eff6ff; border-left: 4px solid #3b82f6; padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem;">
+                        <h3 style="color: #1e40af; margin-bottom: 1rem; font-size: 1.2rem;">📊 What Happens Next?</h3>
+                        <ol style="color: #1e40af; margin-left: 2rem; line-height: 2;">
+                            <li><strong>AI Analysis:</strong> Our system analyzes your responses, video, and engagement</li>
+                            <li><strong>Recruiter Review:</strong> The hiring team reviews your comprehensive analysis report</li>
+                            <li><strong>Decision:</strong> They evaluate your fit for the position</li>
+                            <li><strong>Follow-up:</strong> You'll receive an email with next steps</li>
+                        </ol>
+                    </div>
+                    
+                    <div style="background: #fef3c7; border-left: 4px solid #f59e0b; padding: 1.5rem; border-radius: 8px;">
+                        <h3 style="color: #92400e; margin-bottom: 1rem; font-size: 1.2rem;">💡 Important Information</h3>
+                        <p style="color: #92400e; margin-bottom: 0.5rem;">
+                            • <strong>Timeline:</strong> You'll hear back within 3-5 business days<br>
+                            • <strong>Privacy:</strong> All data is handled confidentially<br>
+                            • <strong>Questions?</strong> Contact the hiring team for any clarifications
+                        </p>
+                    </div>
+                    
+                    <div style="text-align: center; margin-top: 2rem; padding-top: 2rem; border-top: 2px solid #e5e7eb;">
+                        <p style="color: #6b7280; margin-bottom: 1rem; font-size: 1.1rem;">
+                            Thank you for your time and effort!
+                        </p>
+                        <button class="btn-primary" onclick="window.location.href='/'" style="padding: 1rem 2rem;">
+                            ← Back to Home
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Interview Section (Hidden until code verified) -->
+            <div id="interview-section" style="display: none;">
+                <!-- Tabs -->
+                <div class="tabs-container">
+                    <div class="tabs-header">
+                        <button class="tab-btn active" onclick="switchTab('interview', this)">Start Interview</button>
+                        <button class="tab-btn" onclick="switchTab('faq', this)">FAQ</button>
+                    </div>
+
+                    <!-- Interview Tab -->
+                    <div id="tab-interview" class="tab-content active">
+                        <!-- Instructions Card -->
+                        <div class="card">
+                            <div class="card-header">
+                                <h2 class="card-title">Interview Instructions</h2>
+                                <p class="card-description">Please read carefully before starting</p>
+                            </div>
+                            <div class="card-content">
+                                <div class="alert alert-info">
+                                    <span>ℹ️</span>
+                                    <p>Make sure you're in a quiet environment with good lighting and stable internet connection.</p>
+                                </div>
+                                <div class="instructions-list">
+                                    <h4>What to expect:</h4>
+                                    <ul>
+                                        <li>
+                                            <span class="step-badge">1</span>
+                                            <p>The AI will ask you questions based on the job description and your resume</p>
+                                        </li>
+                                        <li>
+                                            <span class="step-badge">2</span>
+                                            <p>You'll have time to think and respond to each question verbally</p>
+                                        </li>
+                                        <li>
+                                            <span class="step-badge">3</span>
+                                            <p>Your responses will be recorded and analyzed by our AI system</p>
+                                        </li>
+                                        <li>
+                                            <span class="step-badge">4</span>
+                                            <p>The interview typically takes 10-15 minutes</p>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Permissions & Start Card -->
+                        <div class="card">
+                            <div class="card-header">
+                                <h2 class="card-title">Camera & Microphone Setup</h2>
+                                <p class="card-description">Camera and microphone access is required to proceed</p>
+                            </div>
+                            <div class="card-content">
+                                <!-- Permission Request -->
+                                <div class="permission-box" id="permission-box">
+                                    <div class="permission-status">
+                                        <div class="permission-icons">
+                                            <div class="permission-icon" id="camera-icon">📷</div>
+                                            <div class="permission-icon" id="mic-icon">🎤</div>
+                                        </div>
+                                        <div class="permission-text">
+                                            <p class="permission-title" id="permission-title">Permissions Required</p>
+                                            <p class="permission-desc" id="permission-desc">Click to allow camera and microphone access</p>
+                                        </div>
+                                    </div>
+                                    <button class="btn-outline" id="permission-btn" onclick="requestPermissions()">
+                                        Allow Access
+                                    </button>
+                                </div>
+
+                                <!-- Video Preview -->
+                                <div id="video-preview" class="video-preview" style="display: none;">
+                                    <label>Camera Preview</label>
+                                    <div class="video-container">
+                                        <video id="preview-video" autoplay muted></video>
+                                        <div class="video-placeholder">
+                                            <span>📹</span>
+                                            <p>Camera preview will appear here</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Start Interview Button -->
+                                <div class="action-section">
+                                    <button class="btn-primary btn-lg" id="start-interview-btn" onclick="startInterview()" disabled>
+                                        <span>▶️</span> Start AI Interview
+                                    </button>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- FAQ Tab -->
+                    <div id="tab-faq" class="tab-content">
+                        <div class="card">
+                            <div class="card-header">
+                                <h2 class="card-title">❓ Frequently Asked Questions</h2>
+                                <p class="card-description">Find answers to common questions about the AI interview process</p>
+                            </div>
+                            <div class="card-content">
+                                <div class="faq-list">
+                                    <div class="faq-item">
+                                        <button class="faq-question" onclick="toggleFaq(this)">
+                                            How long does the interview take?
+                                            <span>+</span>
+                                        </button>
+                                        <div class="faq-answer">
+                                            <p>The AI interview takes 25 minutes.</p>
+                                        </div>
+                                    </div>
+                                    <div class="faq-item">
+                                        <button class="faq-question" onclick="toggleFaq(this)">
+                                            Can I pause the interview?
+                                            <span>+</span>
+                                        </button>
+                                        <div class="faq-answer">
+                                            <p>No, the interview cannot be paused once started. Please ensure you have enough time and are in a quiet environment before beginning.</p>
+                                        </div>
+                                    </div>
+                                    <div class="faq-item">
+                                        <button class="faq-question" onclick="toggleFaq(this)">
+                                            What happens if my internet connection drops?
+                                            <span>+</span>
+                                        </button>
+                                        <div class="faq-answer">
+                                            <p>If your connection drops, the interview will be paused automatically. You'll have the option to resume from where you left off within 24 hours.</p>
+                                        </div>
+                                    </div>
+                                    <div class="faq-item">
+                                        <button class="faq-question" onclick="toggleFaq(this)">
+                                            How is my interview evaluated?
+                                            <span>+</span>
+                                        </button>
+                                        <div class="faq-answer">
+                                            <p>Our AI analyzes your responses for technical knowledge, communication skills, problem-solving ability, and cultural fit. The recruiter receives a detailed report with scores and recommendations.</p>
+                                        </div>
+                                    </div>
+                                    <div class="faq-item">
+                                        <button class="faq-question" onclick="toggleFaq(this)">
+                                            Can I retake the interview?
+                                            <span>+</span>
+                                        </button>
+                                        <div class="faq-answer">
+                                            <p>Interview retakes are at the discretion of the recruiter. If permitted, you may retake the interview after 48 hours.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toast-container"></div>
+
+    <script src="js/utils.js"></script>
+    <script src="js/candidate.js"></script>
+</body>
+</html>

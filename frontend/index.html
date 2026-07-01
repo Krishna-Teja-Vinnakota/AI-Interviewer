@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Interview System - Home</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap">
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar" id="navbar">
+        <div class="container">
+            <div class="nav-content">
+                <div class="logo">
+                    <div class="logo-icon">AI</div>
+                    <span class="logo-text">InterviewAI</span>
+                </div>
+                <div class="nav-links desktop-only">
+                    <button onclick="navigateTo('recruiter.html')">For Recruiters</button>
+                    <button onclick="navigateTo('candidate.html')">For Candidates</button>
+                </div>
+                <button class="mobile-menu-btn" onclick="toggleMobileMenu()">
+                    <span id="menu-icon">☰</span>
+                </button>
+            </div>
+            <div class="mobile-menu" id="mobile-menu">
+                <button onclick="navigateTo('recruiter.html'); toggleMobileMenu();">For Recruiters</button>
+                <button onclick="navigateTo('candidate.html'); toggleMobileMenu();">For Candidates</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-bg"></div>
+        <div class="container">
+            <div class="hero-content">
+                <div class="badge">
+                    <span>✨</span>
+                    <span>AI-Powered Recruitment Platform</span>
+                </div>
+                <h1 class="hero-title">
+                    AI-Powered <span class="text-gradient">First Level Interviews</span>
+                </h1>
+                <p class="hero-subtitle">
+                    Automate your screening process with intelligent AI interviews. Match resumes with job descriptions, conduct automated interviews, and get instant AI evaluations.
+                </p>
+                <div class="hero-cta">
+                    <button class="btn-primary btn-lg" onclick="navigateTo('recruiter.html')">
+                        <span>💼</span> For Recruiters
+                        <span>→</span>
+                    </button>
+                    <button class="btn-outline btn-lg" onclick="navigateTo('candidate.html')">
+                        <span>👥</span> For Candidates
+                        <span>→</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Toast Container -->
+    <div id="toast-container"></div>
+
+    <script src="js/utils.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
